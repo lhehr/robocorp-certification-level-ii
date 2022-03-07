@@ -22,7 +22,20 @@ ${SCREENSHOT_OUTPUT_DIRECTORY}    ${CURDIR}${/}image_files
 Order robots from RobotSpareBin Industries Incp
     Set up directories
     Open the robot order website
-    [Teardown]    Close Browser
+    ${download_url}=    Download url from user
+    ${orders}=    Get orders    ${download_url}
+    FOR    ${row}    IN    @{orders}
+        Close the annoying modal
+        Fill the form    ${row}
+        Preview the robot
+        Wait Until Keyword Succeeds    20x    2s    Submit the order
+        ${pdf}=    Store the receipt as a PDF file    ${row}[Order number]
+        ${screenshot}=    Take a screenshot of the robot    ${row}[Order number]
+        Embed the robot screenshot to the receipt PDF file    ${screenshot}    ${pdf}
+        Go to order another robot
+    END
+    Create a ZIP file of the receipts
+    [Teardown] Browser schließen
 
 *** Keywords ***
 Set up directories
